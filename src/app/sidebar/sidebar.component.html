@@ -1,0 +1,26 @@
+<ngx-slider 
+    [(value)]="dateSlider.minValue" [(highValue)]="dateSlider.maxValue" 
+    [options]="dateSlider.options" 
+    (highValueChange) = dateSliderValueChange($event) 
+>
+</ngx-slider>
+
+<form class="form-group" [formGroup]= "this.cancerTypeForm">
+    <ng-select 
+    [items]="cancerList" 
+    [formControlName] = "'cancerTypes'"
+    bindName= "name"
+    (change) = "onSelect()"
+    placeholder = "Select Cancer Type"
+    >
+    </ng-select>
+</form>
+
+
+<ul class="list-group" style="overflow-y: auto; height: 400px;">
+    <a href="javascript:void(0);" style="text-decoration:none">
+        <li  *ngFor="let item of sideMenuItems" (click) = "onClickSideMenu(item)" [ngClass]="item.textDecorator" >
+            {{ item.name }}
+        </li>
+    </a>
+</ul>
