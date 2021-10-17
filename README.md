@@ -25,3 +25,12 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+
+
+Todo : 
+1. Filtering - 4 hours
+2. Group By Characteristics, and side bar to navigate. -2 hours
+3. Count fix - 1 hour
+4. UI Fixes - 2 hours
+5. Submit button - Implementation - (table addition ,form creation, query generation, query to string, save to db) - 8 hours

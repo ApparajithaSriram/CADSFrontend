@@ -86,6 +86,7 @@ export class SidebarComponent implements OnInit {
   }
 
   dateSliderValueChange(value: any){
+    localStorage.setItem('dateChanged', 'true');
     localStorage.setItem('dateRange', JSON.stringify(this.dateSlider));
   }
 

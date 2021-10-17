@@ -11,9 +11,16 @@ export class AttributeCategoriesService {
     private http: HttpClient,
   ) { }
 
-  getAttributeSubCategories(): Observable<string[]> {
-    const url = 'http://localhost:3000/';
-    // return this.http.get(url);
-    return of(['Race', 'Ethnicity']);
+  getTotalCount(minYear: number, maxYear: number): Observable<any> {
+    const reqBody = { minYear: minYear.toString(), maxYear: maxYear.toString() }
+    const url = 'http://localhost:3000/total-cancer-counts';
+    return this.http.post(url, reqBody);
+  }
+
+  getAllNameTypes(minYear: number, maxYear: number): Observable<any> {
+    const reqBody = { minYear: minYear.toString(), maxYear: maxYear.toString() }
+    const url = 'http://localhost:3000/nametypes';
+    return this.http.post(url, reqBody);
+    // return of(['Race', 'Ethnicity']);
   }
 }

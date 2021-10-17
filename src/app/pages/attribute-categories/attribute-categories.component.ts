@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ChartType } from 'chart.js';
 import { MultiDataSet, Label } from 'ng2-charts';
+import { NameTypeResponse } from 'src/app/models/nameTypeResponse';
+import { AttributeCategoriesService } from 'src/app/services/attribute-categories.service';
 
 @Component({
   selector: 'app-attribute-categories',
@@ -30,6 +32,11 @@ export class AttributeCategoriesComponent implements OnInit {
   {name: "Class of Case", count: 200, values:['Initial diagnosis at the reporting facility AND all treatment or a decision not to treat was done elsewhere', 'Initial diagnosis at the reporting facility or in a staff physician?s office AND part or all of first course treatment or a decision not to treat was at the reporting facility, NOS','Initial diagnosis at the reporting facility AND part of first course treatment was done at the reporting facility','Initial diagnosis at the reporting facility AND all first course treatment or a decision not to treat was done at the reporting facility','Initial diagnosis elsewhere AND all or part of first course treatment was done at the reporting facility, NOS','Initial diagnosis elsewhere AND part of first course treatment was done at the reporting facility','Initial diagnosis elsewhere AND all first course treatment was done at the reporting facility','Initial diagnosis and all first course treatment elsewhere AND reporting facility participated in diagnostic workup (for example, consult only, staging workup after initial diagnosis elsewhere)','Diagnosis AND all first course treatment provided elsewhere AND patient presents at reporting facility with disease recurrence or persistence','Type of case not required by CoC to be accessioned (for example, a benign colon tumor) AND initial diagnosis AND part or all of first course treatment by reporting facility','Initial diagnosis established by autopsy at the reporting facility, cancer not suspected prior to death','Nonanalytic case of unknown relationship to facility (not for use by CoC accredited cancer programs for analytic cases).'],  placeholder: ' Select Class of Case' },
   //End of Class of Case
   ]
+  apiResponse :NameTypeResponse[] = [];
+  showSelectFields: boolean = false;
+  minYear: number = 0;
+  maxYear: number = 9999;
+  totalCount: number = 0;
 
 
   raceValues = ['Asian', 'Hispanic', 'White', 'Black'];
@@ -38,7 +45,7 @@ export class AttributeCategoriesComponent implements OnInit {
 
   public doughnutChartLabels: Label[] = ['Filtered', 'All'];
   public doughnutChartData: MultiDataSet = [
-    [350, 450],
+    [50, 100],
   ];
   //@ts-ignore
   public doughnutChartType: ChartType = 'doughnut';
@@ -51,10 +58,49 @@ export class AttributeCategoriesComponent implements OnInit {
 
   @Input() selectedCategory: any = '';
 
-  constructor() { }
+  constructor(
+    private service: AttributeCategoriesService
+  ) { }
 
   ngOnInit(): void {
     console.log(this.selectedCategory);
+    this.getAttributeSubCategories();
+    setInterval(() => {
+      const dateChanged = localStorage.getItem('dateChanged');
+      if (dateChanged === 'true') {
+        this.updateDateRange();
+        this.getAttributeSubCategories();
+        // this.getTotalCancerCounts();
+        localStorage.setItem('dateChanged', 'false');
+      }
+    }, 2000);
+  }
+
+  getAttributeSubCategories(){
+    this.service.getAllNameTypes(this.minYear, this.maxYear).subscribe(
+      (res: NameTypeResponse[]) => {
+        this.apiResponse = res
+        this.showSelectFields = true
+        let mini = 99999999;
+        res.forEach( (x) => mini = Math.min(x.count, mini));
+        this.totalCount = mini
+        this.updateDonut(3000, mini);
+      },
+      (error) => console.error(error)
+    )
+  }
+
+  getTotalCancerCounts(){
+    this.service.getTotalCount(this.minYear, this.maxYear).subscribe(
+      (res) => {
+        let mini = 99999999;
+        console.log(this.apiResponse);
+        this.apiResponse.forEach( (x) => mini = Math.min(x.count, mini));
+        this.totalCount = mini
+        this.updateDonut(3000, mini);
+      },
+      (error) => console.error(error)
+    )
   }
 
   displaySelectedCategory(){
@@ -69,14 +115,22 @@ export class AttributeCategoriesComponent implements OnInit {
 
   
   displayDateRange() {
+    return `Date Range : ${this.minYear} - ${this.maxYear}`;
+  }
+
+  updateDateRange() {
     const dateRange = localStorage.getItem('dateRange');
     if (dateRange) {
       const date = JSON.parse(dateRange);
-      return `Date Range : ${date.minValue} - ${date.maxValue}`;
+      this.minYear = date.minValue;
+      this.maxYear = date.maxValue;
     }
-    else{
-      return null;
-    }
+  }
+
+  updateDonut(left: number, right: number) {
+    this.doughnutChartData = [
+      [left, right],
+    ];
   }
 
 }
